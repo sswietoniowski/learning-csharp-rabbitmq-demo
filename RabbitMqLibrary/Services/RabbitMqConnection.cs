@@ -17,9 +17,10 @@ public class RabbitMqConnection : IRabbitMqConnection
         var userName = configuration["RabbitMq:UserName"];
         var password = configuration["RabbitMq:Password"];
 
-        _factory = new ConnectionFactory() { HostName = "localhost" };
+        _factory = new ConnectionFactory();
         _factory.Uri = new Uri($"amqp://{userName}:{password}@{hostName}:{port}");
-        _factory.ClientProvidedName = Assembly.GetExecutingAssembly().GetName().Name;
+        _factory.ClientProvidedName = Assembly.GetEntryAssembly()?.GetName().Name ?? 
+                                      Assembly.GetExecutingAssembly().GetName().Name;
     }
 
     public IConnection GetConnection()
