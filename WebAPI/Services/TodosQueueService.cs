@@ -14,7 +14,7 @@ public class TodosQueueService : ITodosQueueService, IDisposable
     public TodosQueueService()
     {
         ConnectionFactory connectionFactory = new();
-        connectionFactory.Uri = new Uri("amqp://guest:guest@rmq:5672");
+        connectionFactory.Uri = new Uri("amqp://guest:guest@localhost:5672");
         connectionFactory.ClientProvidedName = "Todos WebAPI";
         
         _connection = connectionFactory.CreateConnection();

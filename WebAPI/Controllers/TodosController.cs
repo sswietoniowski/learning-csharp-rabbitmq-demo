@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using RabbitMqLibrary.Services.Interfaces;
 using Web.UI.DataAccess.Repository.Interfaces;
 using Web.UI.DTOs;
 using Web.UI.Services.Interfaces;
@@ -11,12 +11,12 @@ namespace Web.UI.Controllers;
 public class TodosController : ControllerBase
 {
     private readonly ITodoRepository _todoRepository;
-    private readonly ITodosQueueService _todosQueueService;
+    private readonly IMessagePublisher<TodoDto> _messagePublisher;
 
-    public TodosController(ITodoRepository todoRepository, ITodosQueueService todosQueueService)
+    public TodosController(ITodoRepository todoRepository, IMessagePublisher<TodoDto> messagePublisher)
     {
         _todoRepository = todoRepository ?? throw new ArgumentNullException(nameof(todoRepository));
-        _todosQueueService = todosQueueService ?? throw new ArgumentNullException(nameof(todosQueueService));
+        _messagePublisher = messagePublisher ?? throw new ArgumentNullException(nameof(messagePublisher));
     }
 
     [HttpGet]
@@ -51,13 +51,13 @@ public class TodosController : ControllerBase
     [HttpOptions("process")]
     public async Task<IActionResult> Process()
     {
-        var todoDtos = await _todoRepository.GetAllAsync();
+        var todoDtos = await _todoRepository.GetUncompletedAsync();
         
         foreach (var todoDto in todoDtos)
         {
-            await _todosQueueService.SendAsync(todoDto);
+            _messagePublisher.Publish(todoDto);
             
-            await _todoRepository.DeleteAsync(todoDto.Id);
+            await _todoRepository.MarkAsCompletedAsync(todoDto.Id);
         }
 
         return NoContent();

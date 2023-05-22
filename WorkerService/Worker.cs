@@ -1,28 +1,34 @@
+using RabbitMqLibrary.Services.Interfaces;
 using WorkerService.DTOs;
-using WorkerService.Services.Interfaces;
 
 namespace WorkerService;
 
 public class Worker : BackgroundService
 {
-    const int DELAY_IN_MILLISECONDS = 1000 * 2; // 2 seconds
+    const int DELAY_IN_MILLISECONDS = 1000 * 30; // 30 seconds
     
     private readonly ILogger<Worker> _logger;
-    private readonly ITodosQueueService _todosQueueService;
+    private readonly IMessageConsumer<TodoDto> _messageConsumer;
 
-    public Worker(ILogger<Worker> logger, ITodosQueueService todosQueueService)
+    public Worker(ILogger<Worker> logger, IMessageConsumer<TodoDto> messageConsumer)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _todosQueueService = todosQueueService ?? throw new ArgumentNullException(nameof(todosQueueService));
+        _messageConsumer = messageConsumer ?? throw new ArgumentNullException(nameof(messageConsumer));
+        
+        _messageConsumer.QueueName = "Todos";
+        _messageConsumer.ExchangeName = "Todos Exchange";
+        _messageConsumer.RoutingKey = "Todos Routing Key";
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
         {
+            await Task.Delay(DELAY_IN_MILLISECONDS, stoppingToken);
+
             _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
             
-            TodoDto? todoDto = await _todosQueueService.ReceiveAsync();
+            TodoDto? todoDto = _messageConsumer.Consume();
             
             if (todoDto is null) 
             {
@@ -31,8 +37,6 @@ public class Worker : BackgroundService
             }
             
             _logger.LogInformation("Received todo: {todoDto}", todoDto?.Title);
-            
-            await Task.Delay(DELAY_IN_MILLISECONDS, stoppingToken);
         }
     }
 }

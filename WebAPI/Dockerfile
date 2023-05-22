@@ -1,6 +1,10 @@
 ﻿FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
 WORKDIR /app
 ENV ASPNETCORE_URLS="http://*:5000"
+ENV RabbitMQ__Host="rmq"
+ENV RabbitMQ__Port="5672"
+ENV RabbitMQ__Username="guest"
+ENV RabbitMQ__Password="guest"
 EXPOSE 5000
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build

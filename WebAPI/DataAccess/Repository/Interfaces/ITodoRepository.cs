@@ -7,5 +7,6 @@ public interface ITodoRepository
     Task<TodoDto> CreateAsync(CreateTodoDto createTodoDto);
     Task<TodoDto?> GetAsync(string id);
     Task<IEnumerable<TodoDto>> GetAllAsync();
-    Task DeleteAsync(string id);
+    Task<IEnumerable<TodoDto>> GetUncompletedAsync();
+    Task MarkAsCompletedAsync(string id);
 }

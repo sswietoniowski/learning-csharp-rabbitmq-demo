@@ -10,7 +10,11 @@ public class TodosRepository : ITodoRepository
     public Task<TodoDto> CreateAsync(CreateTodoDto createTodoDto)
     {
         var id = Guid.NewGuid().ToString();
-        var todoDto = new TodoDto(id, createTodoDto.Title);
+        var todoDto = new TodoDto 
+        { 
+            Id = id, 
+            Title = createTodoDto.Title
+        };
         
         _todoDtos.Add(todoDto);
         
@@ -26,14 +30,19 @@ public class TodosRepository : ITodoRepository
     {
         return Task.FromResult<IEnumerable<TodoDto>>(_todoDtos);
     }
+    
+    public Task<IEnumerable<TodoDto>> GetUncompletedAsync()
+    {
+        return Task.FromResult<IEnumerable<TodoDto>>(_todoDtos.Where(x => !x.IsCompleted));
+    }
 
-    public Task DeleteAsync(string id)
+    public Task MarkAsCompletedAsync(string id)
     {
         var todoDto = _todoDtos.FirstOrDefault(x => x.Id == id);
         
         if (todoDto is not null)
         {
-            _todoDtos.Remove(todoDto);
+            todoDto.IsCompleted = true;
         }
         
         return Task.CompletedTask;
