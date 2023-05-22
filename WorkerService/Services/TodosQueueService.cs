@@ -30,6 +30,7 @@ public class TodosQueueService : ITodosQueueService, IDisposable
         _channel.ExchangeDeclare(exchangeName, ExchangeType.Direct, true, false, null);
         _channel.QueueDeclare(queueName, false, false, false, null);
         _channel.QueueBind(queueName, exchangeName, routingKey, null);
+        _channel.BasicQos(0, 1, false);
         
         BasicGetResult result = _channel.BasicGet(queueName, true);
         
@@ -39,7 +40,7 @@ public class TodosQueueService : ITodosQueueService, IDisposable
         }
         
         string message = Encoding.UTF8.GetString(result.Body.ToArray());
-        TodoDto todoDto = JsonSerializer.Deserialize<TodoDto>(message);
+        TodoDto? todoDto = JsonSerializer.Deserialize<TodoDto>(message);
         
         return Task.FromResult<TodoDto?>(todoDto);
     }
