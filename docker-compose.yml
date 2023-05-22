@@ -15,8 +15,8 @@
   webapi:
     image: webapi
     build:
-      context: ./WebAPI
-      dockerfile: ./Dockerfile
+      context: .
+      dockerfile: ./WebAPI.Dockerfile
     ports:
         - "5000:5000"
         - "5001:5001"
@@ -27,8 +27,8 @@
   workerservice:
     image: workerservice
     build:
-      context: ./WorkerService
-      dockerfile: ./Dockerfile
+      context: .
+      dockerfile: ./WorkerService.Dockerfile
     restart: on-failure
     depends_on:
         - queue

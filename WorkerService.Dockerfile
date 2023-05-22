@@ -1,17 +1,16 @@
 ﻿FROM mcr.microsoft.com/dotnet/runtime:7.0 AS base
 WORKDIR /app
-ENV RabbitMQ__Host="rmq"
+ENV RabbitMQ__HostName="rmq"
 ENV RabbitMQ__Port="5672"
-ENV RabbitMQ__Username="guest"
+ENV RabbitMQ__UserName="guest"
 ENV RabbitMQ__Password="guest"
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
-WORKDIR /src/WorkerService
-COPY ["WorkerService.csproj", "./"]
-RUN dotnet restore "WorkerService.csproj"
-
+WORKDIR /src
+COPY ["RabbitMqLibrary/RabbitMqLibrary.csproj", "RabbitMqLibrary/"]
+COPY ["WorkerService/WorkerService.csproj", "WorkerService/"]
+RUN dotnet restore "WorkerService/WorkerService.csproj"
 COPY . .
-
 WORKDIR "/src/WorkerService"
 RUN dotnet build "WorkerService.csproj" -c Release -o /app/build
 
