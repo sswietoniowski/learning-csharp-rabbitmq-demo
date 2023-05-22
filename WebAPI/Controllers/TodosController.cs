@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Web.UI.DataAccess.Repository.Interfaces;
 using Web.UI.DTOs;
+using Web.UI.Services.Interfaces;
 
 namespace Web.UI.Controllers;
 
@@ -10,45 +11,55 @@ namespace Web.UI.Controllers;
 public class TodosController : ControllerBase
 {
     private readonly ITodoRepository _todoRepository;
+    private readonly ITodosQueueService _todosQueueService;
 
-    public TodosController(ITodoRepository todoRepository)
+    public TodosController(ITodoRepository todoRepository, ITodosQueueService todosQueueService)
     {
         _todoRepository = todoRepository ?? throw new ArgumentNullException(nameof(todoRepository));
+        _todosQueueService = todosQueueService ?? throw new ArgumentNullException(nameof(todosQueueService));
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<TodoDto>>> GetAllTodos()
     {
-        var todos = await _todoRepository.GetAllAsync();
+        var todoDtos = await _todoRepository.GetAllAsync();
         
-        return Ok(todos);
+        return Ok(todoDtos);
     }
     
     [HttpGet("{id}", Name = "GetTodo")]
     public async Task<ActionResult<TodoDto>> GetTodoById(string id)
     {
-        var todo = await _todoRepository.GetAsync(id);
+        var todoDto = await _todoRepository.GetAsync(id);
 
-        if (todo is null)
+        if (todoDto is null)
         {
             return NotFound();
         }
 
-        return Ok(todo);
+        return Ok(todoDto);
     }
     
     [HttpPost]
-    public async Task<ActionResult<TodoDto>> CreateTodo([FromBody] CreateTodoDto dto)
+    public async Task<ActionResult<TodoDto>> CreateTodo([FromBody] CreateTodoDto createTodoDto)
     {
-        var todo = await _todoRepository.CreateAsync(dto);
+        var todoDto = await _todoRepository.CreateAsync(createTodoDto);
         
-        return CreatedAtRoute("GetTodo", new { id = todo.Id }, todo);
+        return CreatedAtRoute("GetTodo", new { id = todoDto.Id }, todoDto);
     }
     
     [HttpOptions("process")]
-    public Task<IActionResult> Process()
+    public async Task<IActionResult> Process()
     {
-        // TODO: Add to queue
-        return Task.FromResult<IActionResult>(new OkResult());
+        var todoDtos = await _todoRepository.GetAllAsync();
+        
+        foreach (var todoDto in todoDtos)
+        {
+            await _todosQueueService.SendAsync(todoDto);
+            
+            await _todoRepository.DeleteAsync(todoDto.Id);
+        }
+
+        return NoContent();
     }
 }

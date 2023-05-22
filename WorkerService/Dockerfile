@@ -2,10 +2,12 @@
 WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
-WORKDIR /src
-COPY ["WorkerService/WorkerService.csproj", "WorkerService/"]
-RUN dotnet restore "WorkerService/WorkerService.csproj"
+WORKDIR /src/WorkerService
+COPY ["WorkerService.csproj", "./"]
+RUN dotnet restore "WorkerService.csproj"
+
 COPY . .
+
 WORKDIR "/src/WorkerService"
 RUN dotnet build "WorkerService.csproj" -c Release -o /app/build
 

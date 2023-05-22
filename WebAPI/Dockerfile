@@ -1,20 +1,20 @@
 ﻿FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
 WORKDIR /app
-EXPOSE 80
-EXPOSE 443
+ENV ASPNETCORE_URLS="http://*:5000"
+EXPOSE 5000
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
-WORKDIR /src
-COPY ["Web.UI/Web.UI.csproj", "Web.UI/"]
-RUN dotnet restore "Web.UI/Web.UI.csproj"
+WORKDIR /src/WebAPI
+COPY ["WebAPI.csproj", "./"]
+RUN dotnet restore "WebAPI.csproj"
 COPY . .
-WORKDIR "/src/Web.UI"
-RUN dotnet build "Web.UI.csproj" -c Release -o /app/build
+WORKDIR "/src/WebAPI"
+RUN dotnet build "WebAPI.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "Web.UI.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "WebAPI.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Web.UI.dll"]
+ENTRYPOINT ["dotnet", "WebAPI.dll"]

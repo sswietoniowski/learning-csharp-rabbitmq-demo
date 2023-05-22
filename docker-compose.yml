@@ -1,8 +1,9 @@
 ﻿services:
   queue:
+    hostname: rmq
     image: rabbitmq:3-management
     ports:
-      - "15672:15672"
+      - "8080:15672"
       - "5672:5672"
     environment:
       - RABBITMQ_DEFAULT_USER=guest
@@ -13,11 +14,18 @@
   webapi:
     image: webapi
     build:
-      context: .
-      dockerfile: WebAPI/Dockerfile
+      context: ./WebAPI
+      dockerfile: ./Dockerfile
+    ports:
+        - "5000:5000"
+        - "5001:5001"
+    depends_on:
+        - queue
       
   workerservice:
     image: workerservice
     build:
-      context: .
-      dockerfile: WorkerService/Dockerfile
+      context: ./WorkerService
+      dockerfile: ./Dockerfile
+    depends_on:
+        - queue
