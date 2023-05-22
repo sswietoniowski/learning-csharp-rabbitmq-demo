@@ -5,7 +5,7 @@ namespace WorkerService;
 
 public class Worker : BackgroundService
 {
-    const int DELAY_IN_MILLISECONDS = 1000 * 30; // 30 seconds
+    const int DELAY_IN_MILLISECONDS = 1000 * 10; // 10 seconds
     
     private readonly ILogger<Worker> _logger;
     private readonly IMessageConsumer<TodoDto> _messageConsumer;

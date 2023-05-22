@@ -25,7 +25,7 @@ public class RabbitMqConnection : IRabbitMqConnection
 
     public IConnection GetConnection()
     {
-        if (_connection is IConnection { IsOpen: false })
+        if (_connection is null || !_connection.IsOpen)
         {
             _connection = _factory.CreateConnection();
         }
