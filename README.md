@@ -1,4 +1,4 @@
-# Learning C# - RabbitMQ
+# Learning C# - RabbitMQ Demo
 
 This repository contains examples showing how to use RabbitMQ in .NET and C#.
 
