@@ -1,7 +1,7 @@
 ﻿using Web.UI.DataAccess.Repository.Interfaces;
 using Web.UI.DTOs;
 
-namespace Web.UI.Services;
+namespace Web.UI.DataAccess.Repository;
 
 public class TodosRepository : ITodoRepository
 {

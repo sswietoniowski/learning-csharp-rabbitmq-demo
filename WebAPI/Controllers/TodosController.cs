@@ -2,7 +2,6 @@
 using RabbitMqLibrary.Services.Interfaces;
 using Web.UI.DataAccess.Repository.Interfaces;
 using Web.UI.DTOs;
-using Web.UI.Services.Interfaces;
 
 namespace Web.UI.Controllers;
 
@@ -17,6 +16,10 @@ public class TodosController : ControllerBase
     {
         _todoRepository = todoRepository ?? throw new ArgumentNullException(nameof(todoRepository));
         _messagePublisher = messagePublisher ?? throw new ArgumentNullException(nameof(messagePublisher));
+        
+        _messagePublisher.QueueName = "Todos";
+        _messagePublisher.ExchangeName = "Todos Exchange";
+        _messagePublisher.RoutingKey = "Todos Routing Key";
     }
 
     [HttpGet]
