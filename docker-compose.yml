@@ -30,5 +30,8 @@
       context: .
       dockerfile: ./WorkerService.Dockerfile
     restart: on-failure
+    deploy:
+      replicas: 2
     depends_on:
         - queue
+  
